@@ -135,24 +135,7 @@ Streamlit Dashboard (Real-Time Prediction)
 
 ---
 
-## Installation & Setup
 
-**Prerequisites:** Python 3.x
-
-```bash
-# 1. Clone the repository
-git clone <your-repo-link>
-cd genai_capstone
-
-# 2. Create virtual environment
-python3 -m venv venv
-source venv/bin/activate        
-
-# 3. Install dependencies
-pip install -r requirements.txt
-```
-
----
 
 
 ## Key Highlights
