@@ -24,10 +24,6 @@ This project builds a **complete prediction pipeline**: from raw agronomy data t
 
 ---
 
-## Demo
-
-![Uploading image.png…]()
-
 
 ---
 
@@ -134,7 +130,7 @@ Evaluation (R-Squared Score)
 Feature Impact (Top 5 contributing variables)
     │
     ▼
-Streamlit Dashboard (Real-Time Prediction + Glassmorphism UI)
+Streamlit Dashboard (Real-Time Prediction)
 ```
 
 ---
@@ -150,7 +146,7 @@ cd genai_capstone
 
 # 2. Create virtual environment
 python3 -m venv venv
-source venv/bin/activate        # macOS/Linux
+source venv/bin/activate        
 
 # 3. Install dependencies
 pip install -r requirements.txt
@@ -158,25 +154,6 @@ pip install -r requirements.txt
 
 ---
 
-## Usage
-
-### Run the Dashboard
-
-```bash
-python3 -m streamlit run app.py
-```
-
-Opens at **http://localhost:8501**
-
-### Retrain the Model
-
-To run the local training pipeline that re-generates `.pkl` files in the `models/` directory:
-
-```bash
-python3 src/train_local.py
-```
-
----
 
 ## Key Highlights
 
@@ -188,7 +165,3 @@ python3 src/train_local.py
 - Fast Random Forest inference
 
 ---
-
-## License
-
-This project is open-source.
