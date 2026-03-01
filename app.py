@@ -5,10 +5,10 @@ import joblib
 import os
 import subprocess
 import matplotlib.pyplot as plt
-# --- Page Config ---
+
 st.set_page_config(page_title="Crop Yield Predictor", page_icon="🌾", layout="wide")
 
-# --- Try to load models ---
+
 MODEL_PATH = "models/model.pkl"
 SCALER_PATH = "models/scaler.pkl"
 COLUMNS_PATH = "models/model_columns.pkl"
@@ -19,18 +19,10 @@ for file in [MODEL_PATH, SCALER_PATH, COLUMNS_PATH]:
         missing_files.append(file)
 
 if missing_files:
-    # --- Auto-Train Bootstrapper ---
-    # Because model.pkl is 3.6GB, it cannot be hosted on GitHub.
-    # Therefore, when this app boots in Streamlit Cloud, the file will be missing.
-    # We catch the missing file and automatically train the model on the cloud server!
     st.warning(f"Initial Setup: Generating ML Models ({', '.join([os.path.basename(f) for f in missing_files])})")
-    
     with st.spinner("Training Random Forest AI... This might take 1-2 minutes for the first boot!"):
         import sys
         try:
-            # Run the training script via subprocess so it acts as an independent execution thread
-            # capture_output=False allows Streamlit Cloud logs to show the training progress
-            # Using sys.executable ensures we use the exact Python environment running Streamlit
             print(f"Running subprocess: {sys.executable} src/train_local.py")
             subprocess.run([sys.executable, "src/train_local.py"], check=True)
             st.success("✅ Agronomy Engine successfully trained and initialized!")
@@ -48,10 +40,10 @@ def load_models():
     cols = joblib.load(COLUMNS_PATH)
     return m, s, cols
 
-# Load real models if available
+
 model, scaler, model_columns = load_models()
 
-# --- Custom CSS for Breathtaking UI ---
+
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap');
@@ -341,37 +333,32 @@ h1, h2, h3, p, label, .stMarkdown {
 
 """, unsafe_allow_html=True)
 
-# --- Define Input Options based on Colab Data ---
+
 soil_types = ['Chalky', 'Clay', 'Loam', 'Peaty', 'Sandy', 'Silt']
 crops = ['Barley', 'Cotton', 'Maize', 'Rice', 'Soybean', 'Wheat']
 
-# --- UI Header ---
+
 st.markdown("""
 <div class="hero-title">NexusYield</div>
 <div class="hero-subtitle">Intelligent Agronomy Engine</div>
 """, unsafe_allow_html=True)
 
-# --- UI Layout ---
+
 col1, space, col2 = st.columns([1.2, 0.05, 1])
 
 with col1:
     st.markdown('<div class="section-title">🌍 Environmental Parameters</div>', unsafe_allow_html=True)
-    
     row1_c1, row1_c2 = st.columns(2)
     with row1_c1:
         soil_type = st.selectbox("Soil Type", soil_types)
     with row1_c2:
         crop = st.selectbox("Crop", crops)
-        
     st.markdown("<br>", unsafe_allow_html=True)
-    
     rainfall = st.slider("Rainfall (mm)", min_value=0.0, max_value=2000.0, value=550.0)
     temperature = st.slider("Average Temperature (°C)", min_value=-10.0, max_value=60.0, value=27.5)
     days_to_harvest = st.slider("Days to Harvest", min_value=30, max_value=300, value=104)
-    
     st.markdown("<br>", unsafe_allow_html=True)
     st.markdown('<div class="section-title">🚜 Intervention Strategy</div>', unsafe_allow_html=True)
-    
     row3_c1, row3_c2 = st.columns(2)
     with row3_c1:
         fertilizer = st.checkbox("Fertilizer Used", value=True)
@@ -381,11 +368,8 @@ with col1:
 with col2:
     predict_clicked = st.button("Simulate Yield")
     result_placeholder = st.empty()
-    
     st.markdown("<br><br>", unsafe_allow_html=True)
-    
     st.markdown('<div class="section-title" style="margin-top:20px;">🧠 System Diagnostics</div>', unsafe_allow_html=True)
-    
     st.markdown("""
     <div style="display: flex; gap: 1.5rem; margin-top: 1rem;">
         <div class="diagnostic-card">
@@ -401,9 +385,8 @@ with col2:
     </div>
     """, unsafe_allow_html=True)
 
-# --- Prediction Logic ---
+
 if predict_clicked:
-    # 1. Create a DataFrame for the input
     input_data = pd.DataFrame([{
         'Rainfall_mm': rainfall,
         'Temperature_Celsius': temperature,
@@ -413,21 +396,11 @@ if predict_clicked:
         'Soil_Type': soil_type,
         'Crop': crop
     }])
-    
-    # 2. Scale
     features_to_scale = ['Rainfall_mm', 'Temperature_Celsius', 'Days_to_Harvest']
     input_data[features_to_scale] = scaler.transform(input_data[features_to_scale])
-    
-    # 3. Dummies
     input_data = pd.get_dummies(input_data, columns=['Soil_Type', 'Crop'])
-    
-    # 4. Reindex
     input_data = input_data.reindex(columns=model_columns, fill_value=0)
-    
-    # 5. Predict
     prediction = model.predict(input_data)[0]
-    
-    # 6. Display Ultra-Premium Result
     result_placeholder.markdown(f"""
     <div class="result-box">
         <div class="result-value">{prediction:.2f}</div>
@@ -435,37 +408,24 @@ if predict_clicked:
     </div>
     """, unsafe_allow_html=True)
 
-    # 7. Sleek Feature Importance
     if hasattr(model, 'feature_importances_'):
         st.markdown("<br>", unsafe_allow_html=True)
         st.markdown('<div class="chart-header">Feature Impact Matrix</div>', unsafe_allow_html=True)
-        
         importances = model.feature_importances_
-        indices = np.argsort(importances)[::-1][:5] # Top 5
-        
-        # Transparent chart with white text
+        indices = np.argsort(importances)[::-1][:5] 
         fig, ax = plt.subplots(figsize=(10, 3.5))
-        fig.patch.set_alpha(0.0) # Transparent background
+        fig.patch.set_alpha(0.0) 
         ax.set_facecolor('none')
-        
-        # Glowing bars
         bars = ax.barh(range(len(indices)), importances[indices], align="center", color='#A8E063', alpha=0.9, height=0.5, zorder=3)
-        
-        # Invert y axis to have highest on top
         ax.invert_yaxis()
-        
         ax.set_yticks(range(len(indices)))
         clean_names = [model_columns[i].replace('_', ' ').replace('Type ', '').title() for i in indices]
         ax.set_yticklabels(clean_names, color='#ffffff', fontsize=12, fontweight='bold')
-        
         ax.tick_params(axis='x', colors='#ffffff', labelsize=10)
         ax.spines['top'].set_visible(False)
         ax.spines['right'].set_visible(False)
         ax.spines['bottom'].set_color((1.0, 1.0, 1.0, 0.4))
         ax.spines['left'].set_color((1.0, 1.0, 1.0, 0.4))
-        
-        # Add a subtle grid
         ax.xaxis.grid(True, linestyle='--', alpha=0.2, zorder=0)
-        
         plt.tight_layout()
         st.pyplot(fig)

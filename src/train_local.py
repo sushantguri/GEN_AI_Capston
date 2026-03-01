@@ -6,11 +6,11 @@ import joblib
 
 import os
 
-# Dynamically resolve paths relative to this script's location
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 print(f"Debug: Resolving BASE_DIR as {BASE_DIR}")
 
-# Check if dataset exists
+
 data_path = os.path.join(BASE_DIR, "data", "crop_yield.csv")
 print(f"Debug: Resolving data_path as {data_path}")
 
@@ -18,15 +18,15 @@ try:
     df = pd.read_csv(data_path)
 except FileNotFoundError:
     print(f"Error: Could not find 'crop_yield.csv' at {data_path}!")
-    exit(1) # Explicit failure status code
+    exit(1) 
 
 print("Loaded Data. Processing...")
 
-# Preprocessing to match Colab exactly
+
 df.drop('Region', axis=1, inplace=True, errors='ignore')
 df.drop('Weather_Condition', axis=1, inplace=True, errors='ignore')
 
-# Use 100k rows to speed up local retraining (Colab used 1M)
+
 if len(df) > 100000:
     df = df.sample(n=100000, random_state=42).reset_index(drop=True)
 
