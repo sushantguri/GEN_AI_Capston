@@ -359,24 +359,24 @@ with col1:
     
     row1_c1, row1_c2 = st.columns(2)
     with row1_c1:
-        soil_type = st.selectbox("Soil Composition", soil_types)
+        soil_type = st.selectbox("Soil Type", soil_types)
     with row1_c2:
-        crop = st.selectbox("Cultivar Type", crops)
+        crop = st.selectbox("Crop", crops)
         
     st.markdown("<br>", unsafe_allow_html=True)
     
-    rainfall = st.slider("Precipitation (mm)", min_value=0.0, max_value=2000.0, value=550.0)
-    temperature = st.slider("Mean Temperature (°C)", min_value=-10.0, max_value=60.0, value=27.5)
-    days_to_harvest = st.slider("Maturation Window (Days)", min_value=30, max_value=300, value=104)
+    rainfall = st.slider("Rainfall (mm)", min_value=0.0, max_value=2000.0, value=550.0)
+    temperature = st.slider("Average Temperature (°C)", min_value=-10.0, max_value=60.0, value=27.5)
+    days_to_harvest = st.slider("Days to Harvest", min_value=30, max_value=300, value=104)
     
     st.markdown("<br>", unsafe_allow_html=True)
     st.markdown('<div class="section-title">🚜 Intervention Strategy</div>', unsafe_allow_html=True)
     
     row3_c1, row3_c2 = st.columns(2)
     with row3_c1:
-        fertilizer = st.checkbox("Chemical Fertilizer Applied", value=True)
+        fertilizer = st.checkbox("Fertilizer Used", value=True)
     with row3_c2:
-        irrigation = st.checkbox("Active Irrigation System", value=True)
+        irrigation = st.checkbox("Irrigation Used", value=True)
 
 with col2:
     predict_clicked = st.button("Simulate Yield")
