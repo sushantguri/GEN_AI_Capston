@@ -97,18 +97,18 @@ flowchart TB
 ```
 genai_capstone/
 ├── notebooks/
-│   └── notebook.ipynb                        # Initial EDA, preprocessing, and training
+│   └── notebook.ipynb                        
 ├── src/
-│   ├── train_local.py                        # Local re-training script
-│   └── read_models.py                        # Model artifact inspection utility
+│   ├── train_local.py                        
+│   └── read_models.py                        
 ├── models/
-│   ├── model.pkl                             # Trained Random Forest 
-│   ├── scaler.pkl                            # Fitted StandardScaler
-│   └── model_columns.pkl                     # Encoded feature column alignment
-├── app.py                                    # Streamlit dashboard (self-contained UI)
+│   ├── model.pkl                            
+│   ├── scaler.pkl                            
+│   └── model_columns.pkl                     
+├── app.py                                   
 ├── data/
-│   └── crop_yield.csv                        # Raw dataset
-├── screenshots/                              # UI screenshots directory
+│   └── crop_yield.csv                        
+├── screenshots/                               
 ├── requirements.txt
 └── README.md
 ```
