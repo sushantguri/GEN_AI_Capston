@@ -26,25 +26,20 @@ if missing_files:
     st.warning(f"Initial Setup: Generating ML Models ({', '.join([os.path.basename(f) for f in missing_files])})")
     
     with st.spinner("Training Random Forest AI... This might take 1-2 minutes for the first boot!"):
+        import sys
         try:
             # Run the training script via subprocess so it acts as an independent execution thread
             # capture_output=False allows Streamlit Cloud logs to show the training progress
-            print("Running subprocess: python3 src/train_local.py")
-            subprocess.run(["python3", "src/train_local.py"], check=True)
+            # Using sys.executable ensures we use the exact Python environment running Streamlit
+            print(f"Running subprocess: {sys.executable} src/train_local.py")
+            subprocess.run([sys.executable, "src/train_local.py"], check=True)
             st.success("✅ Agronomy Engine successfully trained and initialized!")
             st.rerun()
         except Exception as e:
-            print(f"python3 exception: {e}")
-            try:
-                print("Running subprocess: python src/train_local.py")
-                subprocess.run(["python", "src/train_local.py"], check=True)
-                st.success("✅ Agronomy Engine successfully trained and initialized!")
-                st.rerun()
-            except Exception as e2:
-                print(f"python exception: {e2}")
-                st.error("Failed to run the training script dynamically.")
-                st.code(str(e2))
-                st.stop()
+            print(f"Subprocess Exception -> {e}")
+            st.error("Failed to dynamically train the model.")
+            st.code(str(e))
+            st.stop()
 
 @st.cache_resource
 def load_models():
