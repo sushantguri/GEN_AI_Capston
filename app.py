@@ -29,15 +29,19 @@ if missing_files:
         try:
             # Run the training script via subprocess so it acts as an independent execution thread
             # capture_output=False allows Streamlit Cloud logs to show the training progress
+            print("Running subprocess: python3 src/train_local.py")
             subprocess.run(["python3", "src/train_local.py"], check=True)
             st.success("✅ Agronomy Engine successfully trained and initialized!")
             st.rerun()
         except Exception as e:
+            print(f"python3 exception: {e}")
             try:
+                print("Running subprocess: python src/train_local.py")
                 subprocess.run(["python", "src/train_local.py"], check=True)
                 st.success("✅ Agronomy Engine successfully trained and initialized!")
                 st.rerun()
             except Exception as e2:
+                print(f"python exception: {e2}")
                 st.error("Failed to run the training script dynamically.")
                 st.code(str(e2))
                 st.stop()

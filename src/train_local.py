@@ -6,13 +6,19 @@ import joblib
 
 import os
 
+# Dynamically resolve paths relative to this script's location
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+print(f"Debug: Resolving BASE_DIR as {BASE_DIR}")
+
 # Check if dataset exists
-data_path = "data/crop_yield.csv"
+data_path = os.path.join(BASE_DIR, "data", "crop_yield.csv")
+print(f"Debug: Resolving data_path as {data_path}")
+
 try:
     df = pd.read_csv(data_path)
 except FileNotFoundError:
-    print(f"Please download 'crop_yield.csv' into {data_path} first from Kaggle!")
-    exit()
+    print(f"Error: Could not find 'crop_yield.csv' at {data_path}!")
+    exit(1) # Explicit failure status code
 
 print("Loaded Data. Processing...")
 
@@ -46,11 +52,16 @@ rf_model.fit(X_train, y_train)
 print(f"R2 Score: {rf_model.score(X_test, y_test):.4f}")
 
 print("Saving Models...")
-models_dir = 'models'
+print("Saving Models...")
+models_dir = os.path.join(BASE_DIR, 'models')
+print(f"Debug: Generating models_dir as {models_dir}")
 os.makedirs(models_dir, exist_ok=True)
 
-joblib.dump(rf_model, os.path.join(models_dir, 'model.pkl'))
-joblib.dump(scaler, os.path.join(models_dir, 'scaler.pkl'))
-joblib.dump(X_train.columns.tolist(), os.path.join(models_dir, 'model_columns.pkl'))
-
-print("\n🚀 Models saved successfully! You can now start the Streamlit app.")
+try:
+    joblib.dump(rf_model, os.path.join(models_dir, 'model.pkl'))
+    joblib.dump(scaler, os.path.join(models_dir, 'scaler.pkl'))
+    joblib.dump(X_train.columns.tolist(), os.path.join(models_dir, 'model_columns.pkl'))
+    print("\n🚀 Models saved successfully! You can now start the Streamlit app.")
+except Exception as e:
+    print(f"Debug: Failed to save models. Exception: {e}")
+    exit(1)
