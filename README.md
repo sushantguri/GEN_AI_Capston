@@ -24,6 +24,13 @@ This project builds a **complete prediction pipeline**: from raw agronomy data t
 
 ---
 
+## Application Preview
+
+![NexusYield Input Interface](screenshots/ui_main.png)
+
+![NexusYield Prediction Result](screenshots/ui_prediction.png)
+
+![NexusYield Feature Impact Matrix](screenshots/ui_feature_impact.png)
 
 ---
 
