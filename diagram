@@ -1,0 +1,39 @@
+User Input (Sidebar)
+    │
+    ▼
+┌─────────────────────────────────────┐
+│  PHASE 1: ML Prediction            │
+│                                     │
+│  Sliders → Feature Encoding →       │
+│  StandardScaler → Random Forest →   │
+│  Predicted Yield (t/ha) + Graph     │
+└──────────────┬──────────────────────┘
+               │ (Yield + Farm Params injected as "State")
+               ▼
+┌─────────────────────────────────────┐
+│  PHASE 2: LangGraph Agent          │
+│                                     │
+│  User Query + State                 │
+│       │                             │
+│       ▼                             │
+│  NODE 1: Retrieve                   │
+│  (Query → SentenceTransformer →     │
+│   FAISS similarity search →         │
+│   Top 6 PDF chunks returned)        │
+│       │                             │
+│       ▼                             │
+│  NODE 2: Generate                   │
+│  (State + Chunks + Query →          │
+│   Groq API / Llama-3.3-70b →       │
+│   Structured 4-Part Report)         │
+└─────────────────────────────────────┘
+               │
+               ▼
+        ┌──────────────┐
+        │  OUTPUT:      │
+        │  STATUS       │
+        │  ADVICE       │
+        │  SOURCES      │
+        │  DISCLAIMER   │
+        └──────────────┘
+
