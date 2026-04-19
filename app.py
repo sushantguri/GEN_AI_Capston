@@ -4,6 +4,10 @@ warnings.filterwarnings("ignore")
 os.environ["TRANSFORMERS_VERBOSITY"] = "error"
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
+# Load .env file for local API key persistence
+from dotenv import load_dotenv
+load_dotenv()
+
 import streamlit as st
 import pandas as pd
 import numpy as np
