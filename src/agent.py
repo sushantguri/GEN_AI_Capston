@@ -17,6 +17,7 @@ class AgentState(TypedDict):
     query: str
     context: str
     final_report: str
+    api_key: str  # Added for dynamic routing
     
 model = None
 index = None
@@ -59,10 +60,10 @@ def generate_node(state: AgentState):
     context = state['context']
     query = state['query']
     
-    # Use the User's provided API key via secrets/environment
-    api_key = os.environ.get("GROQ_API_KEY")
+    # Use the passed-in API key, fallback to environment var
+    api_key = state.get("api_key") or os.environ.get("GROQ_API_KEY")
     if not api_key:
-        state['final_report'] = "### Error\nGROQ_API_KEY is not set. Please add it to your Streamlit Secrets."
+        state['final_report'] = "### Error\nGROQ_API_KEY is not set. Please add it to your Streamlit Secrets or the Sidebar settings."
         return state
     client = Groq(api_key=api_key)
     
@@ -126,13 +127,15 @@ workflow.add_edge("generate", END)
 # Compile into a runnable application
 app = workflow.compile()
 
-def run_agentic_workflow(farm_data_str: str, query: str = "How do I maximize crop yield based on my parameters?"):
+def run_agentic_workflow(farm_data_str: str, query: str = "How do I maximize crop yield based on my parameters?", api_key: str = None):
     """Entrypoint for Streamlit to call the LangGraph workflow"""
     inputs = {
         "farm_data": farm_data_str,
         "query": query,
         "context": "",
-        "final_report": ""
+        "final_report": "",
+        "api_key": api_key  # Pass explicitly if needed by nodes
     }
+    # Update state temporarily or handle in generate_node
     result = app.invoke(inputs)
     return result['final_report']
