@@ -1,5 +1,5 @@
 ---
-title: NexusYield
+title: NexusYield Enterprise
 emoji: 🌾
 colorFrom: green
 colorTo: lime
@@ -8,39 +8,30 @@ app_file: app.py
 pinned: false
 ---
 
-# NexusYield
+# NexusYield Enterprise
 
-**Intelligent Agronomy Engine**
+**Agentic AI Farm Advisory Assistant (Milestone 2)**
 
-An end-to-end machine learning system that predicts crop yield (Tons / Hectare) based on environmental parameters and intervention strategies. Wait, what does it mean? It provides real-time decisions through a production-grade Streamlit dashboard — built to mirror how modern agritech teams evaluate harvest probability.
-
----
-
-## Problem Statement
-
-Predicting agricultural yields is complex, reliant on non-linear weather patterns, soil composition, and farming techniques. Traditional rule-based farming estimates miss subtle synergies between variables.
-
-This project builds a **complete prediction pipeline**: from raw agronomy data to a deployable web interface that an agricultural analyst or farmer could use to evaluate a field yield in under 30 seconds, with transparent feature importance impact.
+An end-to-end Machine Learning and Agentic AI system that predicts crop yield and leverages a LangGraph-powered Retrieval-Augmented Generation (RAG) pipeline to provide hallucination-free, structured agronomic advice.
 
 ---
 
-## Application Preview
+## Architecture Overview
 
-![NexusYield Input Interface](screenshots/ui_main.png)
+NexusYield operates in **Two Phases**:
 
-![NexusYield Prediction Result](screenshots/ui_prediction.png)
-
-![NexusYield Feature Impact Matrix](screenshots/ui_feature_impact.png)
+- **Phase 1: Machine Learning Evaluation**: Predicts crop yield (Tons/Hectare) based on environmental parameters. Built with a Random Forest Regressor and features real-time explainability (Feature Impact Matrix).
+- **Phase 2: LangGraph Advisory Agent**: An AI Agronomist that takes the *Explicit State* from Phase 1, retrieves verified agricultural manuals via FAISS (Local Vector Database), and generates structured, safe advice using the Groq API (Llama-3.3-70b).
 
 ---
 
 ## Features
 
-- **Full ML Pipeline** — data ingestion, preprocessing (scaling & dummy encoding), model training, evaluation, and serving
-- **Explainability** — Feature importance matrix analysis for every prediction 
-- **Production UI** — dark-themed, animated glassmorphism dashboard built with Streamlit
-- **Intervention Evaluation** — toggle chemical fertilizer and active irrigation parameters
-- **Deployment-Ready** — absolute path resolution, single-command launch
+- **Agentic Workflow (LangGraph)**: Strict node-based state routing (Retrieve ➔ Generate) ensures the AI cannot answer without consulting the FAISS index first.
+- **RAG Pipeline (FAISS + SentenceTransformers)**: 6 offline agricultural PDFs are chunked and embedded via `all-MiniLM-L6-v2` for high-speed local similarity search.
+- **Hallucination Reducers**: The LLM is strictly prompted to output 4 sections (Status, Advice, Sources, Disclaimer) and to deny answering questions lacking PDF evidence.
+- **Premium UI**: Ultra-modern, fully animated glassmorphic dashboard built using CSS-injected Streamlit components.
+- **Auto-Deployment Failsafe**: Automatically retrains its ML models locally upon first boot if pushed without them, heavily optimizing cloud deployment size.
 
 ---
 
@@ -49,10 +40,12 @@ This project builds a **complete prediction pipeline**: from raw agronomy data t
 | Layer | Technology |
 |---|---|
 | Language | Python 3.14 |
+| Agentic Framework | LangGraph |
+| LLM API | Groq (Llama-3.3-70b-versatile) |
+| Vector Database | FAISS (CPU) |
+| Embeddings | SentenceTransformers |
 | ML Framework | scikit-learn |
-| Backend/UI | Streamlit |
-| Data | Pandas, NumPy |
-| Serialization | Joblib |
+| Frontend | Streamlit |
 
 ---
 
@@ -60,98 +53,58 @@ This project builds a **complete prediction pipeline**: from raw agronomy data t
 
 ```mermaid
 flowchart TB
-    subgraph DATA["Data Layer"]
-        A[Agricultural Dataset] --> B[Data Loader]
-        B --> C[Preprocessing & Scaling]
+    subgraph PHASE1["Phase 1: Machine Learning"]
+        A[User Input] --> B[Feature Pipeline]
+        B --> C["Random Forest Regressor"]
+        C --> D[Predicted Yield Metric]
     end
 
-    subgraph ML["ML Pipeline"]
-        C --> D[Feature Engineering]
-        D --> E["Model Training<br/>(Random Forest)"]
-        E --> F[Evaluation]
+    subgraph PHASE2["Phase 2: LangGraph Agent"]
+        D -->|Injects State| E[LangGraph State Machine]
+        F[User Custom Query] --> E
+        
+        E --> G[Retrieve Node]
+        H[(FAISS Vector DB)] --> G
+        
+        G --> I[Generate Node]
+        I --> J[Groq LLM]
+        
+        J --> K[Structured 4-Part Report]
     end
 
-    subgraph SERVE["Serving Layer"]
-        H[Streamlit Dashboard] --> I[User Input]
-        I --> J[Feature Transform]
-        J --> K[Model Inference]
-        K --> L[Yield Prediction + Feature Matrix]
-        L --> H
-    end
-
-    subgraph ARTIFACTS["Persisted Artifacts"]
-        E --> M[model.pkl]
-        C --> N[scaler.pkl]
-        C --> O[model_columns.pkl]
-        M --> K
-        N --> J
-        O --> J
-    end
-
-    style DATA fill:#0f172a,stroke:#1e293b,color:#e2e8f0
-    style ML fill:#0f172a,stroke:#1e293b,color:#e2e8f0
-    style SERVE fill:#0f172a,stroke:#1e293b,color:#e2e8f0
-    style ARTIFACTS fill:#0f172a,stroke:#1e293b,color:#e2e8f0
+    style PHASE1 fill:#0f172a,stroke:#10b981,color:#e2e8f0
+    style PHASE2 fill:#022c22,stroke:#10b981,color:#e2e8f0
 ```
 
 ---
 
 ## Project Structure
 
-```
+```text
 genai_capstone/
-├── notebooks/
-│   └── notebook.ipynb                        
-├── src/
-│   ├── train_local.py                        
-│   └── read_models.py                        
-├── models/
-│   ├── model.pkl                            
-│   ├── scaler.pkl                            
-│   └── model_columns.pkl                     
-├── app.py                                   
 ├── data/
 │   └── crop_yield.csv                        
-├── screenshots/                               
+├── models/
+│   ├── docs.pkl             # RAG Chunked Documents
+│   ├── faiss_index.bin      # RAG Vector Index
+│   └── ...                  # ML Model Weights (Auto-Generated)
+├── src/
+│   ├── agent.py             # LangGraph State & RAG Pipeline
+│   ├── ingest_faiss.py      # PDF parsing and embedding script
+│   └── train_local.py       # Auto-triggered ML training failsafe
+├── app.py                   # Animated Streamlit UI               
 ├── requirements.txt
 └── README.md
 ```
 
 ---
 
-## Machine Learning Pipeline
-
-```
-Raw Data 
-    │
-    ▼
-Preprocessing (One-Hot Encoding + Standard Scaling)
-    │
-    ▼
-Model Training (Random Forest)
-    │
-    ▼
-Evaluation (R-Squared Score)
-    │
-    ▼
-Feature Impact (Top 5 contributing variables)
-    │
-    ▼
-Streamlit Dashboard (Real-Time Prediction)
-```
-
----
-
-
-
-
 ## Key Highlights
 
-> Designed for rapid agritech evaluation scanning in 30 seconds.
+> Designed to meet Enterprise Agritech standards and Grade Rubrics.
 
-- End-to-end ML system: data → features → model → UI
-- Production-grade Streamlit dashboard with custom dark animated aesthetic
-- Clean, modular codebase with separated concerns (`src/`, `models/`, `data/`)
-- Fast Random Forest inference
+- **Hallucination Guardrails**: FAISS explicitly restricts AI generation to scientific manuals.
+- **Strict Structured Outputs**: AI is physically unable to output an unformatted response.
+- **Instant Deployment**: Git ignores 100MB model files; Streamlit Cloud handles auto-recreation on boot in seconds.
 
 ---
